@@ -26,7 +26,13 @@ const findAll = async (req, res) => {
     : {};
 
   try {
-    const grades = await gradesModel.find(condition)
+    let grades = await gradesModel.find(condition)
+    grades = grades.map(grade => {
+      return {
+        id: grade._id,
+        ...grade._doc
+      }
+    })
     res.json(grades);
     logger.info(`GET /grade`);
   } catch (error) {
@@ -42,7 +48,11 @@ const findOne = async (req, res) => {
   const id = req.params.id;
 
   try {
-    res.send();
+    const grade = await gradesModel.findById(id)
+    res.send({
+      id: grade._id,
+      ...grade._doc
+    });
 
     logger.info(`GET /grade - ${id}`);
   } catch (error) {
@@ -61,6 +71,7 @@ const update = async (req, res) => {
   const id = req.params.id;
 
   try {
+    await gradesModel.findByIdAndUpdate(id, req.body)
     res.send({ message: 'Grade atualizado com sucesso' });
 
     logger.info(`PUT /grade - ${id} - ${JSON.stringify(req.body)}`);
@@ -74,6 +85,7 @@ const remove = async (req, res) => {
   const id = req.params.id;
 
   try {
+    await gradesModel.remove({_id: id})
     res.send({ message: 'Grade excluido com sucesso' });
 
     logger.info(`DELETE /grade - ${id}`);
@@ -89,6 +101,7 @@ const removeAll = async (req, res) => {
   const id = req.params.id;
 
   try {
+    await gradesModel.remove({})
     res.send({
       message: `Grades excluidos`,
     });
